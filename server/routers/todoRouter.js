@@ -8,17 +8,7 @@ router.get('/', (req, res, next) => {
         if(err) {
             return next(err)
         }
-        res.status(200).json(result.rows([]))
-    })
-})
-
-
-router.get('/',(req, res) => {
-    pool.query('SELECT * FROM task', (err, result) => {
-        if(err) {
-            return res.status(500).json({error: err.message})
-        }
-        res.status(200).json(result.rows)
+        res.status(200).json(result.rows || [])
     })
 })
 
