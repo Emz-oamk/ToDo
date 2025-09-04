@@ -14,10 +14,12 @@ router.get('/', (req, res, next) => {
 
 router.post('/create', (req, res) => {
     const { task } = req.body
-    if (!task) {
-        return res.status(400).json({error: 'Task is required'})
+    if (!task || !task.description) { //Added !task.description
+        return res.status(400).json({error: 'Description is required'}) //Changed Task to Description
     }
-    pool.query('insert into task (description) values ($1) returning *', [task.description],
+
+    pool.query('insert into task (description) values ($1) returning *', 
+    [task.description],
     (err, result) => {
         if(err) {
             return res.status(500).json({error: err.message})

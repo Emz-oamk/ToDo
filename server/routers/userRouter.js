@@ -18,13 +18,19 @@ router.post('/signup', (req, res, next) => {
     hash(user.password, 10, (err, hashedPassword) => {
         if(err) return next(err)
 
-        pool.query('INSERT INTO account (email, password) VALUES ($1, $2) RETURNING *',
+        // Added id and email at the end of INSERT
+        pool.query(
+         'INSERT INTO account (email, password) VALUES ($1, $2) RETURNING id, email',
          [user.email, hashedPassword],
          (err, result) => {
             if(err) {
+                if(err.code === '23505') {
+                    //duplicating email
+                    return res.status(400).json({error: 'Email already exists'})
+                }
                 return next(err)
             }
-            res.status(201).json({id: result.rows[0].id, email: user.email})
+            res.status(201).json(result.rows[0])// deleted {.id, email: user.email}
         })
     })
 })

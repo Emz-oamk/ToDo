@@ -21,9 +21,19 @@ describe("Testing basic database functionality", () => {
         expect(data).to.include.all.keys(["id", "description"])
         expect(data.description).to.equal(newTask.description)
     })
-
+//Piti muokata alemmat 3, kept giving errors on response fetch
     it("should delete task", async () => {
-        const response = await fetch("http://localhost:3001/delete/1", {
+        //Luodaan uusi task just to delete it
+        const newTask = { description: "Task to delete" }
+        const createResponse = await fetch("http://localhost:3001/create", {
+            method: "post",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ task: newTask })
+        })
+        const created = await createResponse.json()
+
+        //And then delete..
+        const response = await fetch("http://localhost:3001/delete/" + created.id, {
             method: "delete"
         })
         const data = await response.json()
@@ -35,7 +45,7 @@ describe("Testing basic database functionality", () => {
         const response = await fetch("http://localhost:3001/create", {
             method: "post",
             headers: { "Content-Type": "application/json"},
-            body: JSON.stringify({task: null})
+            body: JSON.stringify({task: {} }) //took null out
         })
         const data = await response.json()
         expect(response.status).to.equal(400)

@@ -22,3 +22,5 @@ insert into task (description) values
 ('Deploy the application to production'),
 ('Conduct a code review with peers');
 
+insert into task (description) values ('My test task');
+insert into task (description) values ('My other test task');
