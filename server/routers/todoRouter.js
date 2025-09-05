@@ -12,9 +12,10 @@ router.get('/', (req, res, next) => {
     })
 })
 
-router.post('/create', (req, res) => {
+router.post('/create', auth,(req, res, next) => {
     const { task } = req.body
-    if (!task || !task.description) { //Added !task.description
+
+    if (!task) { // || !task.description
         return res.status(400).json({error: 'Task is required'}) //Changed Task to Description and back
     }
 
@@ -22,7 +23,7 @@ router.post('/create', (req, res) => {
     [task.description],
     (err, result) => {
         if(err) {
-            return next(err) //updated for todo6
+         return next(err) //updated for todo6
         }
         res.status(201).json({id: result.rows[0].id, description: task.description})
     })

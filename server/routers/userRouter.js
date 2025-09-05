@@ -35,7 +35,7 @@ router.post('/signup', (req, res, next) => {
     })
 })
 
-router.post('/signin', (req,res,next) => {
+router.post('/signin', (req, res, next) => {
     const { user } = req.body
     if(!user || !user.email || !user.password) {
         const error = new Error('Email and password are required')
@@ -45,9 +45,9 @@ router.post('/signin', (req,res,next) => {
     pool.query('SELECT * FROM account WHERE email = $1', [user.email], (err,result) => {
         if(err) return next(err)
         
-        if(result.rows.lenght === 0) {
+        if(result.rows.length === 0) {
          const error = new Error('User not found')
-         error.status = 400
+         error.status = 404
          return next(error)
         }
 
@@ -58,7 +58,7 @@ router.post('/signin', (req,res,next) => {
             
             if(!isMatch) {
                 const error = new Error('Invalid password')
-                error.status(401)
+                error.status = 401
                 return next(error)
             }
         })
