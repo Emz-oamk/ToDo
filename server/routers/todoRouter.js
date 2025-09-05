@@ -1,4 +1,4 @@
-import { auth } from '../helper/auth.js'
+import { auth } from './helper/auth.js'
 import { Router } from 'express'
 
 const router = Router()

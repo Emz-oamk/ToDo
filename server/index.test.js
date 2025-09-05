@@ -1,22 +1,19 @@
 import { expect } from "chai"
-import { initializeTestDb, insertTestUser } from "./helper/test.js"
+import { initializeTestDb, insertTestUser, getToken } from "./helper/test.js"
 
 describe("Testing basic database functionality", () => {
     let token = null
-    //const testUser = { email: "foo@foo.com", password: "password123"}
+    const testUser = { email: "foo@foo.com", password: "password123"}
 
     before( async () => {
         await initializeTestDb()
-        const { token: userToken } = await insertTestUser({
-            email: "foo@foo.com",
-            password: "password123"
-        })
-        token = userToken
+        await insertTestUser(testUser.email, testUser.password)
+        token = getToken(testUser.email)
     })
-//token = getToken(testUser)
+
     it("should get all tasks", async () => {
         const response = await fetch("http://localhost:3001/", {
-         headers: { Authorization: token }
+         headers: { Authorization: `Bearer ${token}` }
         })
 
         const data = await response.json()
@@ -31,7 +28,7 @@ describe("Testing basic database functionality", () => {
             method: "post",
             headers: { 
              "Content-Type": "application/json",
-             Authorization: token
+             Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({ task: newTask })
         })
@@ -46,7 +43,7 @@ describe("Testing basic database functionality", () => {
             method: "post",
             headers: { 
              "Content-Type": "application/json",
-             Authorization: token
+             Authorization: `Bearer ${token}`
             },
             body: JSON.stringify({task: null }) //Edit if needed null -> {}
         })
@@ -58,7 +55,7 @@ describe("Testing basic database functionality", () => {
     it("should delete task", async () => {
         const response = await fetch("http://localhost:3001/delete/1", {
             method: "delete",
-            headers: { Authorization: token }
+            headers: { Authorization: `Bearer ${token}` }
         })
         const data = await response.json()
         expect(response.status).to.equal(200)
@@ -70,19 +67,17 @@ describe("Testing basic database functionality", () => {
 
 describe("Testing user management", () => {
     const user = { email: "foo2@test.com", password: "password123"}
-    before( async () => {
-     await insertTestUser(user)
-    })
 
+    before( async () => {
+     await insertTestUser(user.email, user.password)
+    })
+    
     it("should sign up", async () => {
         const newUser = { email: "foo@test.com", password: "password123"}
 
         const response = await fetch("http://localhost:3001/user/signup", {
             method: "post",
-            headers: {
-             "Content-Type": "application/json",
-             Authorization: token
-            },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({user: newUser})
         })
         const data = await response.json()
@@ -94,10 +89,7 @@ describe("Testing user management", () => {
     it('should log in', async () => {
         const response = await fetch("http://localhost:3001/user/signin", {
             method: "post",
-            headers: {
-             "Content-Type": "application/json",
-             Authorization: token
-            },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify({ user })
         })
         const data = await response.json()

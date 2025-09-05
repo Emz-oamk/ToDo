@@ -1,45 +1,47 @@
 import fs from 'fs'
 import path from 'path'
-import { pool } from './db.js'
+import { pool } from '../helper/db.js'
 import { hash } from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { fileURLToPath } from 'url'
+/*import { fileURLToPath } from 'url'
 
 //Added import^ and edited below
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+*/
+const __dirname = path.resolve()
 
-const initializeTestDb = () => {
-    const sql = fs.readFileSync(path.resolve(__dirname,'../todo.sql'), 'utf8')
-
-    pool.query(sql, (err) => {
+const initializeTestDb = async () => {
+    const sql = fs.readFileSync(path.resolve(__dirname,'./todo.sql'), 'utf8')
+    pool.query(sql)
+    /*, (err) => {
         if(err) {
             console.error('Error initializing test database:', err)
         }
         else {
             console.log('Test database initialized successfully')
         }
-    })
+    })*/
 }
 //Edited
-const insertTestUser = async ({ email, password }) => {
+const insertTestUser = async ( email, password ) => {
+    if (!email || !password) {
+        throw new Error("Email and password are required")
+    }
+
     const hashedPassword = await hash(password, 10)
-    const result = await pool.query(
-     "INSERT INTO account (email, password) VALUES ($1, $2) RETURNING id, email",
+    await pool.query( // deleted const result =
+     "INSERT INTO account (email, password) VALUES ($1, $2)",
      [email, hashedPassword]
     )
-
-    const user = result.rows[0]
-    const token = jwt.sign(
-        { id: user.id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-    )
-    return { ...user, token }
+    //const user = result.rows[0]
+    
+    const token = jwt.sign({ email }, process.env.JWT_SECRET || "testsecret")
+    return { email, token }
 }
 
 const getToken = (email) => {
-    return jwt.sign({ email }, process.env.JWT_SECRET)
+    return jwt.sign({ email }, process.env.JWT_SECRET || "testsecret")
 }
 
 export { initializeTestDb, insertTestUser, getToken }
