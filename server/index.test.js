@@ -5,17 +5,13 @@ describe("Testing basic database functionality", () => {
     let token = null
     const testUser = { email: "foo@foo.com", password: "password123"}
 
-    before( async () => {
-        await initializeTestDb()
-        await insertTestUser(testUser.email, testUser.password)
-        token = getToken(testUser.email)
+    before(() => {
+        initializeTestDb()
+        token = getToken(testUser);
     })
 
     it("should get all tasks", async () => {
-        const response = await fetch("http://localhost:3001/", {
-         headers: { Authorization: `Bearer ${token}` }
-        })
-
+        const response = await fetch("http://localhost:3001/")
         const data = await response.json()
         expect(response.status).to.equal(200)
         expect(data).to.be.an("array").that.is.not.empty
@@ -28,7 +24,7 @@ describe("Testing basic database functionality", () => {
             method: "post",
             headers: { 
              "Content-Type": "application/json",
-             Authorization: `Bearer ${token}`
+             Authorization: token
             },
             body: JSON.stringify({ task: newTask })
         })
@@ -43,7 +39,7 @@ describe("Testing basic database functionality", () => {
             method: "post",
             headers: { 
              "Content-Type": "application/json",
-             Authorization: `Bearer ${token}`
+              Authorization: token
             },
             body: JSON.stringify({task: null }) //Edit if needed null -> {}
         })
@@ -54,8 +50,7 @@ describe("Testing basic database functionality", () => {
 
     it("should delete task", async () => {
         const response = await fetch("http://localhost:3001/delete/1", {
-            method: "delete",
-            headers: { Authorization: `Bearer ${token}` }
+            method: "delete"
         })
         const data = await response.json()
         expect(response.status).to.equal(200)
@@ -68,8 +63,8 @@ describe("Testing basic database functionality", () => {
 describe("Testing user management", () => {
     const user = { email: "foo2@test.com", password: "password123"}
 
-    before( async () => {
-     await insertTestUser(user.email, user.password)
+    before(() => {
+     insertTestUser(user.email, user.password)
     })
     
     it("should sign up", async () => {

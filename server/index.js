@@ -13,7 +13,11 @@ app.use(express.urlencoded({extended: false}))
 app.use('/',todoRouter)
 app.use('/user',userRouter)
 
-app.use((err,req,res,next) => {
+app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`)
+})
+
+app.use((err, req, res, next) => {
     const statusCode = err.status || 500
     res.status(statusCode).json({
         error: {
@@ -21,9 +25,5 @@ app.use((err,req,res,next) => {
             status: statusCode
         }
     })
-})
-
-app.listen(port, () => {
-    console.log('Server is running on http://localhost:3001')
 })
 

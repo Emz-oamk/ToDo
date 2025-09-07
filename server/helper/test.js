@@ -1,47 +1,45 @@
 import fs from 'fs'
 import path from 'path'
-import { pool } from '../helper/db.js'
+import { pool } from './db.js'
 import { hash } from 'bcrypt'
 import jwt from 'jsonwebtoken'
-/*import { fileURLToPath } from 'url'
 
-//Added import^ and edited below
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-*/
-const __dirname = path.resolve()
 
-const initializeTestDb = async () => {
-    const sql = fs.readFileSync(path.resolve(__dirname,'./todo.sql'), 'utf8')
-    pool.query(sql)
-    /*, (err) => {
+const __dirname = import.meta.dirname
+
+const initializeTestDb = () => {
+    const sql = fs.readFileSync(path.resolve(__dirname,'../db.sql'), 'utf8')
+    pool.query(sql), (err) => {
         if(err) {
             console.error('Error initializing test database:', err)
         }
         else {
             console.log('Test database initialized successfully')
         }
-    })*/
-}
-//Edited
-const insertTestUser = async ( email, password ) => {
-    if (!email || !password) {
-        throw new Error("Email and password are required")
     }
-
-    const hashedPassword = await hash(password, 10)
-    await pool.query( // deleted const result =
-     "INSERT INTO account (email, password) VALUES ($1, $2)",
-     [email, hashedPassword]
-    )
-    //const user = result.rows[0]
-    
-    const token = jwt.sign({ email }, process.env.JWT_SECRET || "testsecret")
-    return { email, token }
 }
+
+const insertTestUser = (email, password) => {
+    hash(password, 10, (err, hashedPassword) => {
+        if(err) {
+            console.error('Error hashing password:', err)
+            return
+        }
+        pool.query('INSERT INTO account (email, password) VALUES ($1, $2)',
+        [email, hashedPassword],
+        (err, result) => {
+            if(err) {
+                console.error('Error inserting test user:', err)
+            } else {
+                console.log('Test user inserted successfully')
+            } 
+        })
+    })
+}    
+
 
 const getToken = (email) => {
-    return jwt.sign({ email }, process.env.JWT_SECRET || "testsecret")
+    return jwt.sign({ email }, process.env.JWT_SECRET)
 }
 
 export { initializeTestDb, insertTestUser, getToken }
