@@ -33,7 +33,7 @@ const removeTask = async (req, res, next) => {
             return next(new ApiError('Task not found', 404))
         }
 
-        return res.status(200).json({ id: result.rows[0].id })
+        return res.status(200).json(result.rows[0])
     } catch (error) {
         return next(error)
     }

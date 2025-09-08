@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { getTasks, postTask, removeTask } from '../controllers/TaskController.js'
-import auth from '../middleware/auth.js'
+import { auth } from '../helper/auth.js'
+
 
 const router = Router()
 
